@@ -4,16 +4,22 @@ A simple Android project structure generator to
 streamline the setting up process of your host system for Android application development from command line (without Android Studio)
 EOF
 
-main()
+# Initialize Variables
+
+## System
+declare -A flags=(
+    # Optionals and Flags (True|False values only)
+    [help]=false
+)
+
+init_default_Variables()
 {
-    # Initialize Variables
-    
     ## Environment Variables
     ANDROID_HOME="/usr/lib/android-sdk"
     ANDROID_USER_HOME="$HOME/.config/android"
     ANDROID_EMULATOR_HOME=$ANDROID_USER_HOME/emulator
     ANDROID_AVD_HOME=$ANDROID_USER_HOME/avd
-    
+
     ## Custom
     android_Tools="$ANDROID_HOME/tools"
     android_platform_Tools="$ANDROID_HOME/platform-tools"
@@ -41,20 +47,54 @@ main()
     )
     declare -A target_directories=(
         # [directory-name]="directory-path"
-        [backend]="$project_root_Dir/$root_dir_Name/app/src/main/$project_primary_Language/$organization_Name/$project_root_Dir/$application_Name"
-        [frontend]="$project_root_Dir/$root_dir_Name/app/src/main/res/{layout,drawable,mipmap,values}"
+        [backend]="$project_root_Dir/app/src/main/$project_primary_Language/$organization_Name/$project_Name/$application_Name"
+        [frontend-layout]="$project_root_Dir/app/src/main/res/layout"
+        [frontend-drawable]="$project_root_Dir/app/src/main/res/drawable"
+        [frontend-mipmap]="$project_root_Dir/app/src/main/res/mipmap"
+        [frontend-values]="$project_root_Dir/app/src/main/res/values"
     )
     declare -A target_files=(
         # [file-name]="file-path"
-        [AndroidManifest.xml]="$project_root_Dir/$root_dir_Name/app/src/main/$project_primary_Language/$organization_Name/$project_root_Dir/$application_Name"
-        [MainActivity.java]="$project_root_Dir/$root_dir_Name/app/src/main/$project_primary_Language/$organization_Name/$project_root_Dir/$application_Name"
-        [activity_main.xml]="$project_root_Dir/$root_dir_Name/app/src/main/res/layout"
-        [colors.xml]="$project_root_Dir/$root_dir_Name/app/src/main/res/values"
-        [styles.xml]="$project_root_Dir/$root_dir_Name/app/src/main/res/values"
-        [strings.xml]="$project_root_Dir/$root_dir_Name/app/src/main/res/values"
+        [AndroidManifest.xml]="$project_root_Dir/app/src/main"
+        [MainActivity.java]="$project_root_Dir/app/src/main/$project_primary_Language/$organization_Name/$project_Name/$application_Name"
+        [activity_main.xml]="$project_root_Dir/app/src/main/res/layout"
+        [colors.xml]="$project_root_Dir/app/src/main/res/values"
+        [styles.xml]="$project_root_Dir/app/src/main/res/values"
+        [strings.xml]="$project_root_Dir/app/src/main/res/values"
     )
     ANDROID_SDK_COMMAND_LINE_TOOLS="https://dl.google.com/android/repository/commandlinetools-win-10406996_latest.zip"
+}
 
+## Functions
+display_help()
+{
+    : "
+    Display help message
+    "
+    msg="$(cat <<EOF
+:: Synopsis/Syntax
+./generate.sh {global-options} [actions] {internal-options} <arguments>
+
+:: Parameters
+- Positionals
+    - Actions
+        - download [type] : Download the specified category/type
+            - Items
+                + dependencies : Download specified dependencies
+        - setup
+        - template
+        - gradle
+- Optionals
+    + -h | --help : Display help message
+
+:: Usage
+EOF
+)"
+    echo -e "$msg"
+}
+
+setup_Env()
+{
     # Setup Environment Variables
     # Append Environment Variables and system paths into bashrc file
     msg=$(cat <<EOF 
@@ -67,14 +107,24 @@ EOF
 )
     echo -e "$msg" | tee -a $HOME/.bashrc
 
-    # Download Dependencies
+    # Source shell
+    source $HOME/.bashrc
+}
 
-    ## Android SDK Command Line Tools
-    wget $ANDROID_SDK_COMMAND_LINE_TOOLS
-    unzip commandlinetools-linux-*.zip -d $ANDROID_HOME
+dl_Dependencies()
+{
+    # Download Dependencies
 
     ## Install Android SDK packages and components
     sdkmanager "${android_sdk_Packages[@]}"
+}
+
+generate_template_Project()
+{
+    : "
+    Generate template project structure
+    "
+    # Initialize Variables
 
     # Make project root directory
     mkdir -p "$project_root_Dir"
@@ -82,8 +132,24 @@ EOF
     # Enter project root directory
     cd "$project_root_Dir"
 
+    echo -e ""
+
     # Initialize Gradle
-    gradle init --type java-library
+    ## Switch through language types and initialize project using gradle based on the specified language
+    case "$project_primary_Language" in
+        "java")
+            gradle init --type java-library
+            ;;
+        "kotlin")
+            gradle init --type kotlin-library
+            ;;
+        *)
+            # Invalid language
+            echo -e "Invalid language specified: $project_primary_Language"
+            ;;
+    esac
+
+    echo -e ""
 
     # Generate template project structure
     for directories_Name in "${!target_directories[@]}"; do
@@ -96,6 +162,8 @@ EOF
             echo -e "Error creating Directory [$directories_Path/$directories_Name]."
     done
 
+    echo -e ""
+
     # Generate template project source files
     for file_Name in "${!target_files[@]}"; do
         # Get file path
@@ -107,9 +175,16 @@ EOF
             echo -e "Error creating File [$file_Path/$file_Name]."
     done
 
-    # Populate project source files with contents
+    echo -e ""
+}
 
-    ## AndroidManifest.xml
+populate_template_Project()
+{
+    : "
+    Populate project source files with contents
+    "
+
+    # Initialize Variables
     android_Manifest="$(cat <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -144,14 +219,6 @@ EOF
 </manifest>
 EOF
 )"
-    target_fileName="AndroidManifest.xml"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$android_Manifest" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
-
-    ## MainActivity.java
     activity_main_Java="$(cat <<EOF
 package [organization-name].[project-name].[application-name];
 
@@ -172,14 +239,6 @@ public class MainActivity extends AppCompatActivity {
 }
 EOF
 )"
-    target_fileName="MainActivity.java"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$activity_main_Java" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
-
-    ## activity_main.xml
     activity_main_XML="$(cat <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -197,14 +256,6 @@ EOF
 </RelativeLayout>
 EOF
 )"
-    target_fileName="activity_main.xml"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$activity_main_XML" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
-
-    ## strings.xml
     strings="$(cat <<EOF
 <resources>
     <!-- App Name -->
@@ -219,14 +270,6 @@ EOF
 </resources>
 EOF
 )"
-    target_fileName="strings.xml"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$strings" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
-
-    ## styles.xml
     styles="$(cat <<EOF
 <resources>
 
@@ -257,14 +300,6 @@ EOF
 </resources>
 EOF
 )"
-    target_fileName="styles.xml"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$styles" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
-
-    ## colors.xml
     colors="$(cat <<EOF
 <resources>
     <!-- Primary branding color -->
@@ -286,16 +321,37 @@ EOF
 </resources>
 EOF
 )"
-    target_fileName="colors.xml"
-    target_filePath="${target_files[$target_fileName]}"
-    target_File="$target_filePath/$target_fileName"
-    echo -e "$colors" >> $target_File && \
-        echo -e "Successfully populated $target_File" || \
-        echo -e "Error populating $target_File"
+    declare -A content_Mappings=(
+        ["AndroidManifest.xml"]="$android_Manifest"
+        ["MainActivity.java"]="$activity_main_Java"
+        ["activity_main.xml"]="$activity_main_XML"
+        ["strings.xml"]="$strings"
+        ["styles.xml"]="$styles"
+        ["colors.xml"]="$colors"
+    )
 
-    # Create gradle files
+    for target_fileName in "${!content_Mappings[@]}"; do
+        # Get content message
+        content_msg="${content_Mappings[$target_fileName]}"
 
-    ## Module-level Gradle file
+        # Get content filepath
+        target_filePath="${target_files[$target_fileName]}"
+
+        # Compile filename and path
+        target_File="$target_filePath/$target_fileName"
+
+        # Write content to file
+        echo -e "Writing to file: $target_File"
+        echo -e "$content_msg" >> $target_File && \
+                echo -e "Successfully populated $target_File" || \
+                echo -e "Error populating $target_File"
+
+        echo -e ""
+    done
+}
+
+populate_build_Files()
+{
     gradle_build_Module="$(cat <<EOF
 apply plugin: '[plugin-id]'
 
@@ -325,18 +381,6 @@ dependencies {
 }
 EOF
 )"
-    target_fileName="build.gradle"
-    target_filePath="$project_root_Dir/$root_dir_Name/app"
-    target_File="$target_filePath/$target_fileName"
-    # Check if file exists
-    if [[ ! -f "$target_File" ]]; then
-        # File doesnt exist
-        echo -e "$gradle_build_Module" >> $target_File && \
-            echo -e "Successfully populated $target_File" || \
-            echo -e "Error populating $target_File"
-    fi
-
-    ## Top-level gradle file
     gradle_build_Top="$(cat <<EOF
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
@@ -368,18 +412,6 @@ task clean(type: Delete) {
 }
 EOF
 )"
-    target_fileName="build.gradle"
-    target_filePath="$project_root_Dir/$root_dir_Name"
-    target_File="$target_filePath/$target_fileName"
-    # Check if file exists
-    if [[ ! -f "$target_File" ]]; then
-        # File doesnt exist
-        echo -e "$gradle_build_Top" >> $target_File && \
-            echo -e "Successfully populated $target_File" || \
-            echo -e "Error populating $target_File"
-    fi
-
-    ## Gradle settings
     gradle_Settings="$(cat <<EOF
 // Configure the modules included in the project
 
@@ -394,18 +426,112 @@ include ':app'
 rootProject.name = "your-root-application-name"
 EOF
 )"
-    target_fileName="settings.gradle"
-    target_filePath="$project_root_Dir/$root_dir_Name"
+    ## Top-level Gradle file
+    target_fileName="build.gradle"
+    target_filePath="$project_root_Dir"
     target_File="$target_filePath/$target_fileName"
-    # Check if file exists
-    if [[ ! -f "$target_File" ]]; then
-        # File doesnt exist
-        echo -e "$gradle_Settings" >> $target_File && \
-            echo -e "Successfully populated $target_File" || \
-            echo -e "Error populating $target_File"
+    echo -e "$gradle_build_Top" > $target_File && \
+        echo -e "Successfully populated $target_File" || \
+        echo -e "Error populating $target_File"
+
+    ## Module-level Gradle file
+    target_fileName="build.gradle"
+    target_filePath="$project_root_Dir/app"
+    target_File="$target_filePath/$target_fileName"
+    echo -e "$gradle_build_Module" > $target_File && \
+        echo -e "Successfully populated $target_File" || \
+        echo -e "Error populating $target_File"
+
+    ## Gradle settings
+    target_fileName="settings.gradle"
+    target_filePath="$project_root_Dir"
+    target_File="$target_filePath/$target_fileName"
+    echo -e "$gradle_Settings" > $target_File && \
+        echo -e "Successfully populated $target_File" || \
+        echo -e "Error populating $target_File"
+}
+
+main()
+{
+    argv=("$@")
+    argc="${#argv[@]}"
+
+    # Check if arguments are provided
+    if [[ "$argc" -gt 0 ]]; then
+        # Arguments are provided
+        # While there are still arguments
+        while [[ "$1" != "" ]]; do
+            # Process switch-case the argument and obtain flags
+            case "$1" in
+                "setup")
+                    setup_Env
+                    shift 1
+                    ;;
+                "download")
+                    # Check if download type is specified
+                    if [[ "$2" != "" ]]; then
+                        # Get download category/type
+                        category="$2"
+
+                        case "$category" in
+                            "dependencies")
+                                # Download the specified
+                                dl_Dependencies
+                                ;;
+                            *)
+                                echo -e "Invalid argument specified: $category"
+                                ;;
+                        esac
+
+                        # Shift to the left by 1 argument
+                        shift 1
+                    else
+                        echo -e "No download category/type specified."
+                    fi
+                    shift 1
+                    ;;
+                "template")
+                    # Check if specified project exists
+                    if [[ ! -d "$project_root_Dir" ]]; then
+                        # If project does not exist
+                       
+                        ## Generate template project structure
+                        generate_template_Project 
+
+                        ## Populate project source files
+                        populate_template_Project
+                    else
+                        echo -e "Project [$project_root_Dir] exists."
+                    fi
+                    shift 1
+                    ;;
+                "gradle")
+                    # Create gradle files
+                    populate_build_Files
+                    shift 1
+                    ;;
+                "-h" | "--help")
+                    # Display Help
+                    ## Set flag to true
+                    # flags["help"]=true
+                    display_help
+                    break
+                    shift 1
+                    ;;
+                *)
+                    # Invalid Argument
+                    echo -e "Invalid Argument provided [$1]"
+                    shift 1
+                    ;;
+            esac
+        done
     fi
+
+    # Process and execute flags and commands
+    ## Flags
 }
 
 if [[ "${BASH_SOURCE[@]}" == "${0}" ]]; then
+    init_default_Variables
     main "$@"
 fi
