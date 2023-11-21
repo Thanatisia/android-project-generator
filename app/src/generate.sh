@@ -95,17 +95,33 @@ EOF
 
 setup_Env()
 {
-    # Setup Environment Variables
+    : " 
+    Setup Environment Variables
+    "
+
+    # Initialize Variables
+    env_Vars=(
+        "ANDROID_HOME=\"/usr/lib/android-sdk\""
+        "ANDROID_USER_HOME=\"\$HOME/.config/android\""
+        "ANDROID_EMULATOR_HOME=\$ANDROID_USER_HOME/emulator"
+        "ANDROID_AVD_HOME=\$ANDROID_USER_HOME/avd"
+        "PATH+=\"\$ANDROID_HOME/emulator:\$ANDROID_HOME/tools:\$ANDROID_HOME/platform-tools:\$ANDROID_HOME/cmdline-tools/latest/bin:\""
+    )
+
     # Append Environment Variables and system paths into bashrc file
-    msg=$(cat <<EOF 
-ANDROID_HOME="/usr/lib/android-sdk"
-ANDROID_USER_HOME="$HOME/.config/android"
-ANDROID_EMULATOR_HOME=$ANDROID_USER_HOME/emulator
-ANDROID_AVD_HOME=$ANDROID_USER_HOME/avd
-PATH+="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:"
-EOF
-)
-    echo -e "$msg" | tee -a $HOME/.bashrc
+    for env in "${env_Vars[@]}"; do
+        # Check if line is in file
+        echo -e "Checking [$env] in [$HOME/.bashrc]..."
+        if [[ `grep "$env" $HOME/.bashrc` == "" ]]; then
+            # Line is not in file
+    	    echo -e "[$env] not found, writing..."
+
+            # Write into file
+            echo -e "$env" | tee -a $HOME/.bashrc
+        else
+            echo -e "[$env] found."
+        fi
+    done
 
     # Source shell
     source $HOME/.bashrc
@@ -525,6 +541,8 @@ main()
                     ;;
             esac
         done
+    else
+        echo -e "No arguments provided."
     fi
 
     # Process and execute flags and commands
