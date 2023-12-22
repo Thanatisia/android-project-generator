@@ -1,10 +1,10 @@
-# APG - Android Project Generator
+# APG - Android Project Generator implementation in various languages
 
 ## Information
 ### Background
 ```
-A simple Android project structure generator designed and aims to streamline the setting up process 
-of your host system for Android application development from command line (without Android Studio).
+A simple Android project structure generator designed and aims to 
+streamline the setting up process of your host system for Android application development from command line (without Android Studio).
 ```
 
 ### Purpose
@@ -22,36 +22,34 @@ Together with the manual compilation steps, this may potentially help you to und
 ### Pre-Requisites
 
 ## Documentations
-### Synopsis/Syntax
-```
-generate.sh {options} [actions ...]
-```
-### Parameters
-#### Positionals
-- Actions
-    - `download [download-targets]` : Download the specified targets
-        - Targets
-            + dependencies : Download all dependencies required
-    - `setup` : Prepare and setup user's shell for Android application development use
-    - `template` : Generate a proper Mobile application project structure
-        - Notes
-            - The generated template project structure have certain sections populated by keywords that have to be edited by the user
-                + This is for user design
-            + Hence, before building, please look through the project structure and edit according to your needs
-    - `gradle` : Setup gradle files within the generated template project structure; To be used after 'template'
-
-### Usage
-- Full setup
-    - This step will
-        1. Download dependencies
-        2. Setup user's shell environment
-        3. Generate a template android project structure
-        4. Setup Gradle in the generated template android project structure
-    ```
-    ./generate.sh download dependencies setup template gradle
-    ```
+### Languages
++ bash-shellscript
++ python
 
 ## Wiki
+
+### Folders
+- app/ : Place all application and source files here
+    - languages/ : Place all folders of each language here
+        - [language]/ : Folder based on the programming languge of choice
+            - src/ : Place your implementation source files here
+            - tests/ : Place your unit testing here
+
+### Files
+- app/
+    - languages
+        - [language]/
+            - README.md : README for the implementation in that language
+
+### Project Structure
+```
+app/
+    languages/
+        [language]/
+            README.md
+            src/
+            tests/
+```
 
 ## Resources
 
