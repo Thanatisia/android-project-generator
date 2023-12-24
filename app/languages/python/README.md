@@ -40,6 +40,13 @@ python generate.py {options} [actions ...]
             + Hence, before building, please look through the project structure and edit according to your needs
     - `gradle` : Setup gradle files within the generated template project structure; To be used after 'template'
 
+#### Optionals
+- With Arguments
+- Flags
+    + `-s | --view-settings` : Display current settings for system
+    + `-h | --help` : Display help message
+    + `-v | --version` : Display system version
+
 ### Usage
 - Full setup
     - This step will
