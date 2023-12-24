@@ -8,84 +8,10 @@ class AndroidProjectGenerator():
     """
     Main Android Project Generator class
     """
-    def __init__(self):
-        self.init()
-        self.init_settings()
-        self.reset_defaults()
-
-    def init(self):
-        """
-        Initialize Variables
-        """
-        self.home_dir = os.environ.get("HOME")
-
-    def init_settings(self):
-        """
-        Initialize project settings
-        """
-        # env
-        self.ANDROID_HOME = "/usr/lib/android-sdk"
-        self.ANDROID_USER_HOME = "{}/.config/android".format(self.home_dir)
-        self.ANDROID_EMULATOR_HOME = "{}/emulator".format(self.ANDROID_USER_HOME)
-        self.ANDROID_AVD_HOME = "{}/avd".format(self.ANDROID_USER_HOME)
-        self.ANDROID_SDK_COMMAND_LINE_TOOLS = "https://dl.google.com/android/repository/commandlinetools-win-10406996_latest.zip"
-        self.android_sdk_Packages = [
-            # Place your Android SDK packages and components here
-            "platform-tools",
-            "cmdline-tools;latest",
-            "platforms;android-32",
-            "build-tools;31.0.0",
-            "system-images;android-31;google_apis;x86_64",
-        ]
-
-        # Android Tools Information
-        self.android_Tools = "{}/tools".format(self.ANDROID_HOME),
-        self.android_platform_Tools = "{}/platform-tools".format(self.ANDROID_HOME),
-        self.android_cmdline_tools_Bin =  "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
-        self.DEPENDENCIES =  ["android-sdk", "gradle"],
-        self.project_primary_Language = "java", # Specify main backend language (java | kotlin)
-
-        # project_Info
-        self.root_dir_Name = "test-project"
-        self.organization_Name = "com"
-        self.project_Name = "example"
-        self.application_Name = "test_app"
-        self.project_root_Dir =  "{}/{}".format(os.getcwd(), self.root_dir_Name)
-
-        # project_structure
-        self.application_source = "{}/app/src/{}".format("main", self.project_root_Dir), # Project application source directory - Contains backend and frontend resource files
-        self.backend_directory = "{}/{}/{}/{}/{}".format(
-            # Project application backend source files - i.e. Java/Kotlin
-            self.application_source,
-            self.project_primary_Language,
-            self.organization_Name,
-            self.project_Name,
-            self.application_Name
-        )
-        self.resources = "{}/res".format(self.application_source), # Project Resource Files
-        self.res_layout = "{}/layout".format(self.resources), # Project Resources - Layouts and Frontend Design
-        self.res_drawables = "{}/drawable".format(self.resources), # Project Resources - Drawable files
-        self.res_mipmap = "{}/mipmap".format(self.resources), # Project Resources - Mipmap Drawables
-        self.res_values = "{}/values".format(self.resources), # Project Resources - Value specification XML files
-
-        # Android Project Template
-        self.target_directories = {
-            # "directory-name" : "directory-path",
-            "backend" : self.backend_directory,
-            "frontend-layout" : self.res_layout,
-            "frontend-drawable" : self.res_drawables,
-            "frontend-mipmap" : self.res_mipmap,
-            "frontend-values" : self.res_values,
-        }
-        self.target_files = {
-            # [file-name]="file-path"
-            "AndroidManifest.xml" : self.application_source,
-            "MainActivity.java" : self.backend_directory,
-            "activity_main.xml" : self.res_layout,
-            "colors.xml" : self.res_values,
-            "styles.xml" : self.res_values,
-            "strings.xml" : self.res_values,
-        }
+    def __init__(self, apg_Object):
+        self.apg_Object = apg_Object # The APG[Operating System] class object instance
+        self.settings = apg_Object.settings # Retrieve the settings from the APG[System] class
+        self.apg_Utils = APGUtils()
 
     def set_android_Environment(self, setting_key, new_Value):
         """
@@ -177,104 +103,21 @@ class AndroidProjectGenerator():
         """
         self.settings[setting_subkey][setting_key] = new_Value
 
-    def reset_defaults(self):
-        self.settings = {
-            # Settings and Configurations
-            "env" : {
-                ## Environment Variables
-                "ANDROID_HOME" : self.ANDROID_HOME,
-                "ANDROID_USER_HOME" : self.ANDROID_USER_HOME,
-                "ANDROID_EMULATOR_HOME" : self.ANDROID_EMULATOR_HOME,
-                "ANDROID_AVD_HOME" : self.ANDROID_AVD_HOME,
-            },
-            "android_tools_Info" : {
-                ## Custom
-                "android_Tools" : "{}/tools".format(self.ANDROID_HOME),
-                "android_platform_Tools" : "{}/platform-tools".format(self.ANDROID_HOME),
-                "android_cmdline_tools_Bin" : "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
-                "DEPENDENCIES" : self.DEPENDENCIES,
-                "project_primary_Language" : self.project_primary_Language, # Specify main backend language (java | kotlin)
-            },
-            "project_structure" : {
-                # Alias names for the project structurem folders
-                "application-source" : self.application_source, # Project application source directory - Contains backend and frontend resource files
-                "backend" : self.backend_directory,
-                "resources" : self.resources, # Project Resource Files
-                "res-layout" : self.res_layout, # Project Resources - Layouts and Frontend Design
-                "res-drawables" : self.res_drawables, # Project Resources - Drawable files
-                "res-mipmap" : self.res_mipmap, # Project Resources - Mipmap Drawables
-                "res-values" : self.res_values, # Project Resources - Value specification XML files
-            },
-            "project_Info" : {
-                ## Project
-                "root_dir_Name"  : self.root_dir_Name,
-                "organization_Name" : self.organization_Name,
-                "project_Name" : self.project_Name,
-                "application_Name" : self.application_Name,
-                "project_root_Dir" : self.project_root_Dir,
-                "ANDROID_SDK_COMMAND_LINE_TOOLS" : self.ANDROID_SDK_COMMAND_LINE_TOOLS,
-                "android_sdk_Packages" : self.android_sdk_Packages.copy(),
-                "target_directories" : self.target_directories.copy(),
-                "target_files" : self.target_files.copy(),
-            }
-        }
-
-    def setup_Env(self):
+    def import_settings(self, settings_file_Name="settings.yaml"):
         """
-        Setup Environment Variables
+        Import a custom settings file and overwrite the default 'apg.settings' contents (WIP
+
+        :: Params
+        - settings_file_Name : The file name of the configuration file containing the custom APG settings you wish to overwrite and specify
+            Type: String
         """
-        # Initialize Variables
-        env_to_Write = [
-            "ANDROID_HOME=\"{}\"".format(self.settings["env"]["ANDROID_HOME"]),
-            "ANDROID_USER_HOME=\"{}\"".format(self.settings["env"]["ANDROID_USER_HOME"]),
-            "ANDROID_EMULATOR_HOME={}".format(self.settings["env"]["ANDROID_EMULATOR_HOME"]),
-            "ANDROID_AVD_HOME={}".format(self.settings["env"]["ANDROID_AVD_HOME"]),
-            "PATH+=\"{};{};{};{};\"".format(
-                self.settings["env"]["ANDROID_EMULATOR_HOME"],
-                self.settings["android_tools_Info"]["android_Tools"],
-                self.settings["android_tools_Info"]["android_platform_Tools"],
-                self.settings["android_tools_Info"]["android_cmdline_tools_Bin"],
-            ),
-        ]
-        config_file = "{}/.bashrc".format(self.home_dir)
-        line = ""
-        shell_Contents = []
+        # Open YAML file
 
-        # Read shell resource (config) file
-        with open(config_file, "r") as read_Config:
-            # Go through each line
+        # Read in YAML contents
 
-            # Read next line
-            line = read_Config.readline()
-
-            while line != "":
-                # Process line
-                # Append line into shell contents
-                shell_Contents.append(line)
-
-                # Read next line
-                line = read_Config.readline()
-
-            # Close file after usage
-            read_Config.close()
-
-        # Read shell resource (config) file
-        with open(config_file, "a+") as append_Config:
-            # Loop through all environment variables
-            for env in env_to_Write:
-                # Check if environment variable in shell
-                print("Checking [{}] in [{}]...".format(env, config_file))
-                if not (env in shell_Contents):
-                    # Is not in line
-                    print("[{}] not found, writing...".format(config_file))
-                    # Append Environment Variables and system paths into bashrc file
-                    append_Config.write(env + "\n")
-                else:
-                    print("[{}] found.".format(config_file))
-
-            # Close file after usage
-            append_Config.close()
-
+    """
+    Android project structure functions
+    """
     def dl_Dependencies(self):
         """
         Download Dependencies
@@ -283,10 +126,11 @@ class AndroidProjectGenerator():
         packages = ""
 
         # Format package list into string
+        android_sdk_root_Dir = self.settings["env"]["ANDROID_HOME"]
         packages = ' '.join(self.settings["project_Info"]["android_sdk_Packages"])
 
         # Format command string
-        cmd_str = "sdkmanager {}".format(packages)
+        cmd_str = "sdkmanager --sdk_root={} {}".format(android_sdk_root_Dir, packages)
 
         ## Install Android SDK packages and components
         os.system(cmd_str)
@@ -301,6 +145,11 @@ class AndroidProjectGenerator():
         project_primary_Language = self.settings["android_tools_Info"]["project_primary_Language"]
         target_directories = self.settings["project_Info"]["target_directories"].copy()
         target_files = self.settings["project_Info"]["target_files"].copy()
+
+        print("Project Root Dir: {}".format(project_root_Dir))
+        print("Primary Language: {}".format(project_primary_Language))
+        print("Target Directories: {}".format(target_directories))
+        print("Target Files: {}".format(target_files))
 
         # Make project root directory
         os.mkdir(project_root_Dir)
@@ -319,25 +168,30 @@ class AndroidProjectGenerator():
                 # Invalid language
                 print("Invalid language specified: {}".format(project_primary_Language))
 
+        print("Command String: {}".format(cmd_str))
+
         # Check if command string is found
         if cmd_str != "":
             os.system(cmd_str)
 
         # Generate template project structure
         for directories_Name, directories_Path in target_directories.items():
+            # Format directory and file
+            full_directory = directories_Path + self.apg_Object.file_path_separator + directories_Name
+
             # Make directory
-            os.mkdir(directories_Path)
+            os.makedirs(directories_Path)
 
             # Check if directory exists
             if os.path.isdir(directories_Path):
-                print("Directory [{}/{}] created.".format(directories_Path, directories_Name))
+                print("Directory [{}] created.".format(full_directory))
             else:
-                print("Error creating Directory [{}/{}].".format(directories_Path, directories_Name))
+                print("Error creating Directory [{}].".format(full_directory))
 
         # Generate template project source files
         for file_Name, file_Path in target_files.items():
             # Prepare variables
-            file_path_name = "{}/{}".format(file_Path, file_Name)
+            file_path_name = "{}{}{}".format(file_Path, self.apg_Object.file_path_separator, file_Name)
 
             try:
                 # Create file
@@ -513,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
             target_filePath = target_files[target_fileName]
 
             # Compile filename and path
-            target_File = "{}/{}".format(target_filePath, target_fileName)
+            target_File = "{}{}{}".format(target_filePath, self.apg_Object.file_path_separator, target_fileName)
 
             # Write content to file
             print("Writing to file: {}".format(target_File))
@@ -617,7 +471,7 @@ rootProject.name = "your-root-application-name"
         ## Top-level Gradle file
         target_fileName = "build.gradle"
         target_filePath = project_root_Dir
-        target_File = "{}/{}".format(target_filePath, target_fileName)
+        target_File = "{}{}{}".format(target_filePath, self.apg_Object.file_path_separator, target_fileName)
         try:
             with open(target_File, "a+") as write_target_File:
                 # Write contents
@@ -631,8 +485,8 @@ rootProject.name = "your-root-application-name"
 
         ## Module-level Gradle file
         target_fileName="build.gradle"
-        target_filePath="project_root_Dir/app"
-        target_File="{}/{}".format(target_filePath, target_fileName)
+        target_filePath="{}{}app".format(project_root_Dir, self.apg_Object.file_path_separator)
+        target_File="{}{}{}".format(target_filePath, self.apg_Object.file_path_separator, target_fileName)
         try:
             with open(target_File, "a+") as write_target_File:
                 # Write contents
@@ -646,8 +500,8 @@ rootProject.name = "your-root-application-name"
 
         ## Gradle settings
         target_fileName="settings.gradle"
-        target_filePath="$project_root_Dir"
-        target_File="$target_filePath/$target_fileName"
+        target_filePath = project_root_Dir
+        target_File="{}{}{}".format(target_filePath, self.apg_Object.file_path_separator, target_fileName)
         try:
             with open(target_File, "a+") as write_target_File:
                 # Write contents
@@ -659,9 +513,47 @@ rootProject.name = "your-root-application-name"
         except Exception as ex:
             print("Error populating {} : {}".format(target_File, ex))
 
+class APGUtils():
+    """
+    Utilities and Functions used for APG
+    """
+    def join_Paths(self, delimiter, paths=None):
+        """
+        Join a list of paths together with a delimiter
+
+        :: Params
+        - delimiter : Specify the separator used to join the directories
+            Type: String
+            Delimiter Types:
+                - Windows: "\\"
+                - Linux: "/"
+
+        - paths : List of paths to join
+            Type: List
+        """
+        # Initialize Variables
+        final_Path = ""
+
+        # Check if path list is provided
+        if paths != None:
+            # List is not empty
+            # Get size of list
+            path_Size = len(paths)
+
+            # Loop through paths
+            for i in range(path_Size):
+                # Get current path
+                curr_Path = paths[i]
+
+                # Concatenate path
+                final_Path += curr_Path + delimiter
+
+        # Output
+        return final_Path
+
 class APGLinux():
     """
-    Linux/UNIX settings/configuration for the Android Project Generator
+    Contains Linux/UNIX system environment settings/configuration used by the Android Project Generator
     """
     def __init__(self):
         self.init()
@@ -672,8 +564,10 @@ class APGLinux():
         """
         Initialize Variables
         """
+        self.apg_utils = APGUtils()
         self.home_dir = os.environ.get("HOME")
-        self.apg = AndroidProjectGenerator()
+        self.file_path_separator = "/"
+        self.config_file = "{}/.bashrc".format(self.home_dir)
 
     def init_settings(self):
         """
@@ -695,11 +589,11 @@ class APGLinux():
         ]
 
         # Android Tools Information
-        self.android_Tools = "{}/tools".format(self.ANDROID_HOME),
-        self.android_platform_Tools = "{}/platform-tools".format(self.ANDROID_HOME),
-        self.android_cmdline_tools_Bin =  "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
-        self.DEPENDENCIES =  ["android-sdk", "gradle"],
-        self.project_primary_Language = "java", # Specify main backend language (java | kotlin)
+        self.android_Tools = "{}/tools".format(self.ANDROID_HOME)
+        self.android_platform_Tools = "{}/platform-tools".format(self.ANDROID_HOME)
+        self.android_cmdline_tools_Bin =  "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME)
+        self.DEPENDENCIES =  ["android-sdk", "gradle"]
+        self.project_primary_Language = "java" # Specify main backend language (java | kotlin)
 
         # project_Info
         self.root_dir_Name = "test-project"
@@ -709,7 +603,7 @@ class APGLinux():
         self.project_root_Dir =  "{}/{}".format(os.getcwd(), self.root_dir_Name)
 
         # project_structure
-        self.application_source = "{}/app/src/{}".format("main", self.project_root_Dir), # Project application source directory - Contains backend and frontend resource files
+        self.application_source = "{}/app/src/{}".format(self.project_root_Dir, "main") # Project application source directory - Contains backend and frontend resource files
         self.backend_directory = "{}/{}/{}/{}/{}".format(
             # Project application backend source files - i.e. Java/Kotlin
             self.application_source,
@@ -718,11 +612,11 @@ class APGLinux():
             self.project_Name,
             self.application_Name
         )
-        self.resources = "{}/res".format(self.application_source), # Project Resource Files
-        self.res_layout = "{}/layout".format(self.resources), # Project Resources - Layouts and Frontend Design
-        self.res_drawables = "{}/drawable".format(self.resources), # Project Resources - Drawable files
-        self.res_mipmap = "{}/mipmap".format(self.resources), # Project Resources - Mipmap Drawables
-        self.res_values = "{}/values".format(self.resources), # Project Resources - Value specification XML files
+        self.resources = "{}/res".format(self.application_source) # Project Resource Files
+        self.res_layout = "{}/layout".format(self.resources) # Project Resources - Layouts and Frontend Design
+        self.res_drawables = "{}/drawable".format(self.resources) # Project Resources - Drawable files
+        self.res_mipmap = "{}/mipmap".format(self.resources) # Project Resources - Mipmap Drawables
+        self.res_values = "{}/values".format(self.resources) # Project Resources - Value specification XML files
 
         # Android Project Template
         self.target_directories = {
@@ -755,9 +649,9 @@ class APGLinux():
             },
             "android_tools_Info" : {
                 ## Custom
-                "android_Tools" : "{}/tools".format(self.ANDROID_HOME),
-                "android_platform_Tools" : "{}/platform-tools".format(self.ANDROID_HOME),
-                "android_cmdline_tools_Bin" : "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
+                "android_Tools" : self.android_Tools,
+                "android_platform_Tools" : self.android_platform_Tools,
+                "android_cmdline_tools_Bin" : self.android_cmdline_tools_Bin,
                 "DEPENDENCIES" : self.DEPENDENCIES,
                 "project_primary_Language" : self.project_primary_Language, # Specify main backend language (java | kotlin)
             },
@@ -806,23 +700,28 @@ class APGLinux():
         line = ""
         shell_Contents = []
 
-        # Read shell resource (config) file
-        with open(config_file, "r") as read_Config:
-            # Go through each line
+        # Check if shell resource (config file) exists
+        if os.path.isfile(config_file):
+            # File exists
+            # Read shell config file
 
-            # Read next line
-            line = read_Config.readline()
-
-            while line != "":
-                # Process line
-                # Append line into shell contents
-                shell_Contents.append(line)
+            # Read shell resource (config) file
+            with open(config_file, "r") as read_Config:
+                # Go through each line
 
                 # Read next line
-                line = read_Config.readline()
+                line = read_Config.readline().rstrip("\n")
 
-            # Close file after usage
-            read_Config.close()
+                while line != "":
+                    # Process line
+                    # Append line into shell contents
+                    shell_Contents.append(line)
+
+                    # Read next line
+                    line = read_Config.readline().rstrip("\n")
+
+                # Close file after usage
+                read_Config.close()
 
         # Read shell resource (config) file
         with open(config_file, "a+") as append_Config:
@@ -832,18 +731,20 @@ class APGLinux():
                 print("Checking [{}] in [{}]...".format(env, config_file))
                 if not (env in shell_Contents):
                     # Is not in line
-                    print("[{}] not found, writing...".format(config_file))
+                    print("[{}] not found, writing...".format(env))
                     # Append Environment Variables and system paths into bashrc file
                     append_Config.write(env + "\n")
                 else:
-                    print("[{}] found.".format(config_file))
+                    print("[{}] found.".format(env))
+
+                print("")
 
             # Close file after usage
             append_Config.close()
 
 class APGWindows():
     """
-    Windows settings/configuration for the Android Project Generator
+    Contains Windows system environment settings/configuration used by the Android Project Generator
     """
     def __init__(self):
         self.init()
@@ -854,19 +755,24 @@ class APGWindows():
         """
         Initialize Variables
         """
-        self.home_dir = os.environ.get("HOMEDIR")
-        self.cwd = os.environ.get("CD")
-        self.apg = AndroidProjectGenerator()
+        # self.home_dir = os.environ.get("HOMEDIR")
+        # self.cwd = os.environ.get("CD")
+        self.apg_utils = APGUtils()
+        self.home_dir = os.getcwd()
+        self.cwd = os.getcwd()
+        self.file_path_separator = "\\"
+        self.env_filename = "apg-shell.bat"
+        self.env_config_file_fullpath = r"{}\{}".format(os.getcwd(), self.env_filename)
 
     def init_settings(self):
         """
         Initialize project settings
         """
         # env
-        self.ANDROID_HOME = "{}/android-sdk".format(self.cwd)
-        self.ANDROID_USER_HOME = "{}/.config/android".format(self.home_dir)
-        self.ANDROID_EMULATOR_HOME = "{}/emulator".format(self.ANDROID_USER_HOME)
-        self.ANDROID_AVD_HOME = "{}/avd".format(self.ANDROID_USER_HOME)
+        self.ANDROID_HOME = "{}\\android-sdk".format(self.cwd)
+        self.ANDROID_USER_HOME = "{}\\.config\\android".format(self.home_dir)
+        self.ANDROID_EMULATOR_HOME = "{}\\emulator".format(self.ANDROID_USER_HOME)
+        self.ANDROID_AVD_HOME = "{}\\avd".format(self.ANDROID_USER_HOME)
         self.ANDROID_SDK_COMMAND_LINE_TOOLS = "https://dl.google.com/android/repository/commandlinetools-win-10406996_latest.zip"
         self.android_sdk_Packages = [
             # Place your Android SDK packages and components here
@@ -878,22 +784,22 @@ class APGWindows():
         ]
 
         # Android Tools Information
-        self.android_Tools = "{}/tools".format(self.ANDROID_HOME),
-        self.android_platform_Tools = "{}/platform-tools".format(self.ANDROID_HOME),
-        self.android_cmdline_tools_Bin =  "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
-        self.DEPENDENCIES =  ["android-sdk", "gradle"],
-        self.project_primary_Language = "java", # Specify main backend language (java | kotlin)
+        self.android_Tools = "{}\\tools".format(self.ANDROID_HOME)
+        self.android_platform_Tools = "{}\\platform-tools".format(self.ANDROID_HOME)
+        self.android_cmdline_tools_Bin =  "{}\\cmdline-tools\\latest\\bin".format(self.ANDROID_HOME)
+        self.DEPENDENCIES =  ["android-sdk", "gradle"]
+        self.project_primary_Language = "java" # Specify main backend language (java | kotlin)
 
         # project_Info
         self.root_dir_Name = "test-project"
         self.organization_Name = "com"
         self.project_Name = "example"
         self.application_Name = "test_app"
-        self.project_root_Dir =  "{}/{}".format(os.getcwd(), self.root_dir_Name)
+        self.project_root_Dir =  "{}\\{}".format(os.getcwd(), self.root_dir_Name)
 
         # project_structure
-        self.application_source = "{}/app/src/{}".format("main", self.project_root_Dir), # Project application source directory - Contains backend and frontend resource files
-        self.backend_directory = "{}/{}/{}/{}/{}".format(
+        self.application_source = "{}\\app\\src\\{}".format(self.project_root_Dir, "main") # Project application source directory - Contains backend and frontend resource files
+        self.backend_directory = "{}\\{}\\{}\\{}\\{}".format(
             # Project application backend source files - i.e. Java/Kotlin
             self.application_source,
             self.project_primary_Language,
@@ -901,11 +807,11 @@ class APGWindows():
             self.project_Name,
             self.application_Name
         )
-        self.resources = "{}/res".format(self.application_source), # Project Resource Files
-        self.res_layout = "{}/layout".format(self.resources), # Project Resources - Layouts and Frontend Design
-        self.res_drawables = "{}/drawable".format(self.resources), # Project Resources - Drawable files
-        self.res_mipmap = "{}/mipmap".format(self.resources), # Project Resources - Mipmap Drawables
-        self.res_values = "{}/values".format(self.resources), # Project Resources - Value specification XML files
+        self.resources = "{}\\res".format(self.application_source) # Project Resource Files
+        self.res_layout = "{}\\layout".format(self.resources) # Project Resources - Layouts and Frontend Design
+        self.res_drawables = "{}\\drawable".format(self.resources) # Project Resources - Drawable files
+        self.res_mipmap = "{}\\mipmap".format(self.resources) # Project Resources - Mipmap Drawables
+        self.res_values = "{}\\values".format(self.resources) # Project Resources - Value specification XML files
 
         # Android Project Template
         self.target_directories = {
@@ -938,9 +844,9 @@ class APGWindows():
             },
             "android_tools_Info" : {
                 ## Custom
-                "android_Tools" : "{}/tools".format(self.ANDROID_HOME),
-                "android_platform_Tools" : "{}/platform-tools".format(self.ANDROID_HOME),
-                "android_cmdline_tools_Bin" : "{}/cmdline-tools/latest/bin".format(self.ANDROID_HOME),
+                "android_Tools" : self.android_Tools,
+                "android_platform_Tools" : self.android_platform_Tools,
+                "android_cmdline_tools_Bin" : self.android_cmdline_tools_Bin,
                 "DEPENDENCIES" : self.DEPENDENCIES,
                 "project_primary_Language" : self.project_primary_Language, # Specify main backend language (java | kotlin)
             },
@@ -985,30 +891,33 @@ class APGWindows():
                 self.settings["android_tools_Info"]["android_cmdline_tools_Bin"],
             ),
         ]
-        env_filename = "apg-shell.bat"
-        config_file = "{}/{}".format(self.home_dir, env_filename)
+        env_filename = self.env_filename
+        config_file = self.env_config_file_fullpath
         line = ""
         shell_Contents = []
 
-        # Read shell resource (config) file
-        with open(config_file, "r") as read_Config:
-            # Go through each line
-
-            # Read next line
-            line = read_Config.readline()
-
-            while line != "":
-                # Process line
-                # Append line into shell contents
-                shell_Contents.append(line)
+        # Check if shell resource (config file) exists
+        if os.path.isfile(config_file):
+            # File exists
+            # Read shell config file
+            with open(config_file, "r") as read_Config:
+                # Go through each line
 
                 # Read next line
-                line = read_Config.readline()
+                line = read_Config.readline().rstrip("\n")
 
-            # Close file after usage
-            read_Config.close()
+                while line != "":
+                    # Process line
+                    # Append line into shell contents
+                    shell_Contents.append(line)
 
-        # Read shell resource (config) file
+                    # Read next line
+                    line = read_Config.readline().rstrip("\n")
+
+                # Close file after usage
+                read_Config.close()
+
+        # Open shell resource (config) file to write
         with open(config_file, "a+") as append_Config:
             # Loop through all environment variables
             for env in env_to_Write:
@@ -1016,12 +925,15 @@ class APGWindows():
                 print("Checking [{}] in [{}]...".format(env, config_file))
                 if not (env in shell_Contents):
                     # Is not in line
-                    print("[{}] not found, writing...".format(config_file))
+                    print("[{}] not found, writing...".format(env))
                     # Append Environment Variables and system paths into bashrc file
                     append_Config.write(env + "\n")
                 else:
-                    print("[{}] found.".format(config_file))
+                    print("[{}] found.".format(env))
+
+                print("")
 
             # Close file after usage
             append_Config.close()
+
 

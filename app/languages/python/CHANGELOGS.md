@@ -1,7 +1,8 @@
 # CHANGELOGS
 
 ## Table of Contents
-+ [2023-12-24 | v0.1.0](#2023-12-24)
+- [2023-12-24](#2023-12-24)
+    + 1019H : v0.1.0
 
 ## Logs
 ### 2023-12-24
@@ -19,4 +20,8 @@
         - Updated documentationa and usage
 - TODO
     - Clean-up and convert 'apg_latest.py' to 'apg.py'
+
+#### 1019H
+- Updates
+    - Replaced 'apg_stable.py' with the latest release of 'apg.py'
 
