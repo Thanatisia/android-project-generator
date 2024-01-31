@@ -62,3 +62,8 @@
 - Updates
     - Deleted '__pycache__' directories
 
+#### 1827H
+- New
+    - Added new document 'BUILD.md' for holding information to build project from source
+    - Added new document 'CONTRIBUTING.md' for holding rules and information if someone wants to contribute
+
