@@ -20,12 +20,32 @@ Together with the manual compilation steps, this may potentially help you to und
 + gradle
 
 ### Pre-Requisites
+- Add the python scripts directory to your system environment path
+    - Linux
+        - Global
+            ```console
+            export PATH+="/path/to/python/environment/Scripts:"
+            ```
+        - Virtual Environment
+            ```console
+            export PATH+="/path/to/python/virtual/environment/Scripts:"
+            ```
+    - Windows
+        - Global
+            ```console
+            SET PATH="%PATH%;\path\to\python\environment\Scripts"
+            ```
+        - Virtual Environment
+            ```console
+            SET PATH="%PATH%;\path\to\python\virtual\environment\Scripts"
+            ```
 
 ## Documentations
 ### Synopsis/Syntax
 ```
-python generate.py {options} [actions ...]
+android_project_generator {options} [actions ...]
 ```
+
 ### Parameters
 #### Positionals
 - Actions
@@ -48,6 +68,7 @@ python generate.py {options} [actions ...]
     + `-v | --version` : Display system version
 
 ### Usage
+#### Executable Application
 - Full setup
     - This step will
         1. Download dependencies
@@ -55,7 +76,13 @@ python generate.py {options} [actions ...]
         3. Generate a template android project structure
         4. Setup Gradle in the generated template android project structure
     ```
-    python generator.py download dependencies setup template gradle
+    android_project_generator download dependencies setup template gradle
+    ```
+
+#### Import as a package
+- Use package as a module
+    ```python
+    from android_project_generator.package.apg import classes
     ```
 
 ## Wiki

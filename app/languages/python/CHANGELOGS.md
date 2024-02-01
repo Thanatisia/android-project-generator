@@ -6,6 +6,7 @@
 - [2024-01-31](#2024-01-31)
 - [2024-02-02](#2024-02-02)
     + 0003H : v0.2.0
+    + 0021H : v0.2.1
 
 ## Logs
 ### 2023-12-24
@@ -71,6 +72,7 @@
 
 ### 2024-02-02
 #### 0003H
++ v0.2.0
 - New
     - Added '__init__.py' to the package directories (src/package-name, src/package-name/package)
 - Updates
@@ -81,4 +83,11 @@
                     ```python
                     from android_project_generator.package.apg import classes
                     ```
+
+#### 0022H
++ v0.2.1
+- Updates
+    - Updated README.md with 
+        + updated packaging naming convention instead of manual execution
+        + Usage example snippets on using package as a dependency
 
