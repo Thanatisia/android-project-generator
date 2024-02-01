@@ -4,6 +4,8 @@
 - [2023-12-24](#2023-12-24)
     + 1019H : v0.1.0
 - [2024-01-31](#2024-01-31)
+- [2024-02-02](#2024-02-02)
+    + 0003H : v0.2.0
 
 ## Logs
 ### 2023-12-24
@@ -66,4 +68,17 @@
 - New
     - Added new document 'BUILD.md' for holding information to build project from source
     - Added new document 'CONTRIBUTING.md' for holding rules and information if someone wants to contribute
+
+### 2024-02-02
+#### 0003H
+- New
+    - Added '__init__.py' to the package directories (src/package-name, src/package-name/package)
+- Updates
+    - Migrated the previous layout 'src' => into the 'src/[package-name]' best practice project structure layout
+        - Renamed generator.py => '__main__'.py : The main entry point runner/launcher file that will be referenced on startup after installation
+            - Removed 'if __name__ == "__main__":' from __main__.py because this is an executable application and not a framework/package/library to be imported
+                - However, you can still import and use the libraries directly
+                    ```python
+                    from android_project_generator.package.apg import classes
+                    ```
 
