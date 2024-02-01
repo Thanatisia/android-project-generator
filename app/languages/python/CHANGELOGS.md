@@ -7,6 +7,7 @@
 - [2024-02-02](#2024-02-02)
     + 0003H : v0.2.0
     + 0021H : v0.2.1
+    + 0030H : v0.2.2
 
 ## Logs
 ### 2023-12-24
@@ -90,4 +91,14 @@
     - Updated README.md with 
         + updated packaging naming convention instead of manual execution
         + Usage example snippets on using package as a dependency
+
+#### 0030H
++ v0.2.2
+
+- Updates
+    - Updated '__main__.py' entry point
+        + Repositioned dictionary 'application_Info' down
+        + Obtained application's executable name only from the executable path
+        + Updated the help message display function
+        + Cleaned up and removed some print messages
 

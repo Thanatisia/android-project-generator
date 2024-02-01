@@ -48,7 +48,7 @@ def display_help():
 {}
 
 :: Synopsis/Syntax
-python {} <global-options> [actions] <internal-options> <arguments>
+{} <global-options> [actions] <internal-options> <arguments>
 
 :: Parameters
 - Positionals
@@ -70,11 +70,11 @@ python {} <global-options> [actions] <internal-options> <arguments>
 
 :: Usage
 - Full project run
-    python {} download dependencies setup template gradle
+    {} download dependencies setup template gradle
 """.format(
     application_Info["name"], 
     application_Info["executable"],
-    application_Info["executable"]
+    application_Info["executable"],
 )
     print(msg)
 
@@ -82,13 +82,7 @@ def init():
     """
     Perform global variable and class object initialization
     """
-    global flags, application_Info, apg, apg_System, exec, argv, argc
-
-    application_Info = {
-        "name" : "APG - Android Project Generator",
-        "executable" : "generator.py",
-        "version" : "v0.1.0",
-    }
+    global flags, application_Info, apg, apg_System, exec, exec_name, argv, argc
 
     # Global Variables
     flags = {
@@ -96,8 +90,15 @@ def init():
     }
 
     exec = sys.argv[0]
+    exec_name = os.path.basename(exec)
     argv = sys.argv[1:]
     argc = len(argv)
+
+    application_Info = {
+        "name" : "APG - Android Project Generator",
+        "executable" : exec_name,
+        "version" : "v0.2.2",
+    }
 
     # Initialize Class variables
 
@@ -357,12 +358,7 @@ def main():
     """
     global flags
 
-    print("Init")
     init()
-
-    print("Setup")
     setup()
-
-    print("Process CLI arguments")
     process_cli_args(flags)
 
