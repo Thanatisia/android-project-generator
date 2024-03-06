@@ -45,7 +45,7 @@ init_default_Variables()
         "build-tools;31.0.0"
         "system-images;android-31;google_apis;x86_64"
     )
-    declare -A target_directories=(
+    declare -gA target_directories=(
         # [directory-name]="directory-path"
         [backend]="$project_root_Dir/app/src/main/$project_primary_Language/$organization_Name/$project_Name/$application_Name"
         [frontend-layout]="$project_root_Dir/app/src/main/res/layout"
@@ -53,7 +53,7 @@ init_default_Variables()
         [frontend-mipmap]="$project_root_Dir/app/src/main/res/mipmap"
         [frontend-values]="$project_root_Dir/app/src/main/res/values"
     )
-    declare -A target_files=(
+    declare -gA target_files=(
         # [file-name]="file-path"
         [AndroidManifest.xml]="$project_root_Dir/app/src/main"
         [MainActivity.java]="$project_root_Dir/app/src/main/$project_primary_Language/$organization_Name/$project_Name/$application_Name"
@@ -81,9 +81,13 @@ display_help()
         - download [type] : Download the specified category/type
             - Items
                 + dependencies : Download specified dependencies
-        - setup
-        - template
-        - gradle
+        - setup : Prepare and setup user's shell for Android application development use
+        - template : Generate a proper Mobile application project structure
+            - Notes
+                - The generated template project structure have certain sections populated by keywords that have to be edited by the user
+                    + This is for user design
+                + Hence, before building, please look through the project structure and edit according to your needs
+        - gradle : Setup gradle files within the generated template project structure; To be used after 'template'
 - Optionals
     + -h | --help : Display help message
 
